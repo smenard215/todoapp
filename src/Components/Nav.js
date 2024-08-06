@@ -15,10 +15,11 @@ import AddToDo from './AddToDo';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import dayjs from 'dayjs';
 
+
 const theme = createTheme({
   palette: {
     secondary: {
-      main: '#FF7961',
+      main: '#b2dfdb',
     },
   },
 });
@@ -41,14 +42,14 @@ export default function Nav({ onAddTask }) {
   };
 
   const handleDateChange = (date) => {
-    // Format the date as YYYY-MM-DD
+    
     setNewTask(prev => ({ ...prev, date: date ? dayjs(date).format('YYYY-MM-DD') : '' }));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     if (newTask.title && newTask.status) {
-      // Include all fields except time
+      
       onAddTask({ ...newTask, id: Date.now() });
       handleClose();
     } else {
@@ -75,7 +76,7 @@ export default function Nav({ onAddTask }) {
             >
               <DeveloperModeIcon />
             </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'white' }}>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               My To-Do List
             </Typography>
             <IconButton

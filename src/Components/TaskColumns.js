@@ -34,7 +34,8 @@ const TaskColumns = ({ tasks, onTaskUpdate }) => {
               justifyContent: 'center', // Center items vertically
               alignItems: 'center', // Center items horizontally
               border: '1px solid', 
-              borderColor: '#ce93d8', 
+              borderColor: '#cfd8dc', 
+              backgroundColor: '#f5f5f5',
             }}
           >
             <Typography 

@@ -4,13 +4,6 @@ import DeleteIcon from '@mui/icons-material/Delete'; // Import Delete Icon
 
 const statuses = ['In Progress', 'On Hold', 'Completed', 'To Do'];
 
-const statusColors = {
-  'To Do': 'default',
-  'In Progress': 'secondary',
-  'On Hold': 'error',
-  'Completed': 'success',
-};
-
 const TaskCard = ({ task, onStatusChange, onDelete }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -27,6 +20,21 @@ const TaskCard = ({ task, onStatusChange, onDelete }) => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const getChipColor = (status) => {
+    switch (status) {
+      case 'To Do':
+        return '#f4ff81'; 
+      case 'In Progress':
+        return 'secondary.main'; 
+      case 'On Hold':
+        return 'error.main'; 
+      case 'Completed':
+        return 'success.main'; 
+      default:
+        return 'default'; 
+    }
   };
 
   return (
@@ -51,8 +59,11 @@ const TaskCard = ({ task, onStatusChange, onDelete }) => {
             <Chip
               label={task.status}
               onClick={handleChipClick}
-              color={statusColors[task.status]} // Apply color based on status
-              sx={{ cursor: 'pointer' }}
+              sx={{
+                cursor: 'pointer',
+                backgroundColor: getChipColor(task.status), 
+                color: task.status === 'To Do' ? 'black' : 'white', 
+              }}
             />
           </Tooltip>
           <Menu
