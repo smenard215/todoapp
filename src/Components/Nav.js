@@ -26,7 +26,8 @@ const theme = createTheme({
 
 export default function Nav({ onAddTask }) {
   const [open, setOpen] = React.useState(false);
-  const [newTask, setNewTask] = React.useState({ title: '', date: '', status: '', description: '' });
+  const [newTask, setNewTask] = React.useState({ title: '', date: '', status: 'To Do', description: '' });
+
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -57,9 +58,10 @@ export default function Nav({ onAddTask }) {
     }
   };
 
+
   const handleReset = () => {
     // Reset the form fields
-    setNewTask({ title: '', date: '', status: '', description: '' });
+    setNewTask({ title: '', date: '', status: 'To Do', description: '' });
   };
 
   return (

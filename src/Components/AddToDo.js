@@ -40,9 +40,9 @@ export default function AddToDo({ onChange, onDateChange, newTask }) {
         <InputLabel>Status</InputLabel>
         <Select
           name="status"
-          value={newTask.status || ''}
           onChange={onChange}
           label="Status"
+          value={newTask.status || 'To Do'} 
         >
           <StyledMenuItem value="In Progress" color="#9C27B0">In Progress</StyledMenuItem>
           <StyledMenuItem value="Completed" color="#1A5E20">Completed</StyledMenuItem>
