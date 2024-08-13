@@ -1,0 +1,80 @@
+import React from 'react';
+import { Container, Typography, TextField, Button, Grid, Paper, Box, Checkbox, FormControlLabel } from '@mui/material';
+import { Google } from '@mui/icons-material';
+import { useTheme } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
+
+const SignIn = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  return (
+    <Container component="main" maxWidth="xs" sx={{ marginTop: 8 }}>
+      <Paper elevation={3} sx={{ padding: 3 }}>
+        <Typography variant="h5" align="center">
+          Sign In
+        </Typography>
+        <Box component="form" sx={{ mt: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Email Address"
+                variant="outlined"
+                type="email"
+                required
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Password"
+                variant="outlined"
+                type="password"
+                required
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={12} container alignItems="center">
+              <Grid item>
+                <FormControlLabel
+                  control={<Checkbox name="rememberMe" />}
+                  label="Remember Me"
+                />
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2 }}
+              >
+                Sign In
+              </Button>
+            </Grid>
+            <Grid item xs={12} container spacing={2} justifyContent="center" sx={{ mt: 2 }}>
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<Google />}
+                  onClick={() => {
+                    // Handle Google sign-in here
+                    console.log('Sign in with Google');
+                  }}
+                >
+                  Sign In with Google
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
+    </Container>
+  );
+};
+
+export default SignIn;

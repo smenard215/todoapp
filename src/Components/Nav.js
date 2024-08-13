@@ -14,118 +14,98 @@ import DialogTitle from '@mui/material/DialogTitle';
 import AddToDo from './AddToDo';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import dayjs from 'dayjs';
+import axios from 'axios';
 
-// Create a theme with a custom secondary color
 const theme = createTheme({
-  palette: {
-    secondary: {
-      main: '#b2dfdb',
+    palette: {
+        secondary: {
+            main: '#b2dfdb',
+        },
     },
-  },
 });
 
+const API_URL = 'http://localhost:8080/tasks'; // Adjust if you use a different port or domain
+
 export default function Nav({ onAddTask }) {
-  // State to manage the visibility of the dialog
-  const [open, setOpen] = React.useState(false);
-  // State to manage the new task details
-  const [newTask, setNewTask] = React.useState({ title: '', date: '', status: 'To Do', description: '' });
+    const [open, setOpen] = React.useState(false);
+    const [newTask, setNewTask] = React.useState({ title: '', date: '', status: 'To Do', description: '' });
+    const [isSubmitting, setIsSubmitting] = React.useState(false); // Add a loading state
 
-  // Function to open the dialog
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
 
-  // Function to close the dialog
-  const handleClose = () => {
-    setOpen(false);
-  };
+    const handleClose = () => {
+        setOpen(false);
+    };
 
-  // Function to handle changes in input fields
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setNewTask(prev => ({ ...prev, [name]: value }));
-  };
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setNewTask(prev => ({ ...prev, [name]: value }));
+    };
 
-  // Function to handle changes in date picker
-  const handleDateChange = (date) => {
-    setNewTask(prev => ({ ...prev, date: date ? dayjs(date).format('YYYY-MM-DD') : '' }));
-  };
+    const handleDateChange = (date) => {
+        setNewTask(prev => ({ ...prev, date: date ? dayjs(date).format('YYYY-MM-DD') : '' }));
+    };
 
-  // Function to handle form submission
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Check if title and status are provided before submitting
-    if (newTask.title && newTask.status) {
-      // Call the onAddTask function passed as a prop with new task data
-      onAddTask({ ...newTask, id: Date.now() });
-      handleClose(); // Close the dialog after submission
-    } else {
-      console.error('Title and Status are required.'); // Log an error if validation fails
-    }
-  };
+    const handleSubmit = async (event) => {
+        event.preventDefault(); // Prevent default form submission behavior
+        if (isSubmitting) return; // Prevent duplicate submissions
+        setIsSubmitting(true); // Set submitting state
 
-  // Function to reset form fields
-  const handleReset = () => {
-    setNewTask({ title: '', date: '', status: 'To Do', description: '' });
-  };
+        if (newTask.title && newTask.status) {
+            try {
+                const response = await axios.post(API_URL, newTask);
+                onAddTask(response.data);
+                handleClose();
+            } catch (error) {
+                console.error('Error adding task:', error);
+            } finally {
+                setIsSubmitting(false); // Reset submitting state
+            }
+        } else {
+            console.error('Title and Status are required.');
+            setIsSubmitting(false); // Reset submitting state
+        }
+    };
 
-  return (
-    <Box sx={{ flexGrow: 1 }}>
-      <ThemeProvider theme={theme}>
-        <AppBar position="static" color='secondary'>
-          <Toolbar>
-            {/* Icon button to represent the web app logo */}
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="Web app"
-              sx={{ mr: 2 }}
-            >
-              <DeveloperModeIcon />
-            </IconButton>
-            {/* Title of the app */}
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              My To-Do List
-            </Typography>
-            {/* Icon button to open the Add To Do dialog */}
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="Add To Do"
-              onClick={handleClickOpen}
-            >
-              <AddCircleIcon />
-              <Typography variant="h6" component="div">
-                Add To Do
-              </Typography>
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-      </ThemeProvider>
+    const handleReset = () => {
+        setNewTask({ title: '', date: '', status: 'To Do', description: '' });
+    };
 
-      {/* Dialog for adding a new task */}
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        component="form"
-        onSubmit={handleSubmit}
-      >
-        <DialogTitle color='secondary'>Add To Do</DialogTitle>
-        <DialogContent>
-          <AddToDo
-            onChange={handleChange}
-            onDateChange={handleDateChange}
-            newTask={newTask}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleReset}>Reset</Button> {/* Reset Button */}
-          <Button type="submit">Add To Do</Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
-  );
+    return (
+        <Box sx={{ flexGrow: 1 }}>
+            <ThemeProvider theme={theme}>
+                <AppBar position="static" color='secondary'>
+                    <Toolbar>
+                        <IconButton size="large" edge="start" color="inherit" aria-label="Web app" sx={{ mr: 2 }}>
+                            <DeveloperModeIcon />
+                        </IconButton>
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                            My To-Do List
+                        </Typography>
+                        <IconButton size="large" edge="start" color="inherit" aria-label="Add To Do" onClick={handleClickOpen}>
+                            <AddCircleIcon />
+                            <Typography variant="h6" component="div">
+                                Add To Do
+                            </Typography>
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+            </ThemeProvider>
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle color='secondary'>Add To Do</DialogTitle>
+                <DialogContent>
+                    <AddToDo onChange={handleChange} onDateChange={handleDateChange} newTask={newTask} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={handleReset}>Reset</Button>
+                    <Button type="submit" onClick={handleSubmit} disabled={isSubmitting}>
+                        {isSubmitting ? 'Adding...' : 'Add To Do'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
+    );
 }

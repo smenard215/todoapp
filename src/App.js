@@ -1,41 +1,68 @@
-import React, { useState } from 'react';
-import './App.css'; 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './App.css';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import Nav from './Components/Nav'; 
+import Nav from './Components/Nav';
 import TaskColumns from './Components/TaskColumns';
 
-// Initial tasks to be displayed in the application
-const initialTasks = [
-  { id: 1, title: 'Complete Project Report', date: '2024-08-05',  status: 'In Progress', description: 'Finalize and submit the project report by the end of the day.' },
-  { id: 2, title: 'Prepare for Meeting', date: '2024-08-06',  status: 'To Do', description: 'Review the agenda and prepare presentation slides.' },
-  { id: 3, title: 'Fix Bug in Application', date: '2024-08-07',  status: 'On Hold', description: 'Investigate the issue with the login feature.' },
-  { id: 4, title: 'Update Documentation', date: '2024-08-08', status: 'Completed', description: 'Add new API endpoints to the project documentation.' }
-];
+const API_URL = 'http://localhost:8080/tasks'; // Adjust if you use a different port or domain
 
 function App() {
-  // State to hold the list of tasks
-  const [tasks, setTasks] = useState(initialTasks);
+    const [tasks, setTasks] = useState([]);
 
-  // Function to handle updates to the task list
-  const handleTaskUpdate = (updatedTasks) => {
-    setTasks(updatedTasks);
-  };
+    // Fetch tasks from the backend
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const response = await axios.get(API_URL);
+                setTasks(response.data);
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+            }
+        };
 
-  // Function to add a new task to the list
-  const handleAddTask = (newTask) => {
-    setTasks(prevTasks => [...prevTasks, newTask]);
-  };
+        fetchTasks();
+    }, []);
 
-  return (
-    // LocalizationProvider provides date handling and localization support
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      {/* Nav component provides navigation and task adding functionality */}
-      <Nav onAddTask={handleAddTask} />
-      {/* TaskColumns component displays tasks organized by their status */}
-      <TaskColumns tasks={tasks} onTaskUpdate={handleTaskUpdate} />
-    </LocalizationProvider>
-  );
+    // Handle task updates
+    const handleTaskUpdate = async (updatedTasks) => {
+        setTasks(updatedTasks);
+        try {
+            await Promise.all(updatedTasks.map(task =>
+                axios.put(`${API_URL}/${task.id}`, task)
+            ));
+        } catch (error) {
+            console.error('Error updating tasks:', error);
+        }
+    };
+
+    // Handle adding a new task
+    const handleAddTask = async (newTask) => {
+        try {
+            const response = await axios.post(API_URL, newTask);
+            setTasks(prevTasks => [...prevTasks, response.data]);
+        } catch (error) {
+            console.error('Error adding task:', error);
+        }
+    };
+
+    // Handle task deletion
+    const handleDeleteTask = async (taskId) => {
+        try {
+            await axios.delete(`${API_URL}/${taskId}`);
+            setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        }
+    };
+
+    return (
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Nav onAddTask={handleAddTask} />
+            <TaskColumns tasks={tasks} onTaskUpdate={handleTaskUpdate} onDelete={handleDeleteTask} />
+        </LocalizationProvider>
+    );
 }
 
 export default App;
